@@ -54,6 +54,7 @@ def get_time_periods_dfs(data, _weeks = 1):
         date += timedelta(weeks = _weeks)
     return time_period_data
 
+
 def artist_level_data(data, time_period_data, base_prop = 0.01):
     import math
     artist_data = {}
@@ -87,9 +88,10 @@ def artist_level_data(data, time_period_data, base_prop = 0.01):
                 first_date = False
 
     df = pd.DataFrame.from_dict({(i, j): artist_data[i][j]
-                     for i in artist_data.keys()
-                    for j in artist_data[i].keys()},
-                orient = 'index')
+            for i in artist_data.keys()
+            for j in artist_data[i].keys()},
+            orient = 'index')
+
     return df
 
 def time_period_top_songs(data, _weeks = 1, n = 10):
@@ -143,39 +145,3 @@ def weekly_half_prop_and_bands(data, name):
     half = pd.DataFrame(num_bands_for_half).T
     half['person'] = name
     return half
-
-def show_one_pie(data):
-    time_period_data = get_time_periods_dfs(data)
-    for d in time_period_data.values():
-        props = d['props']
-        props['Artist'] = props.index
-        fig = px.pie(props, values='proportion', names='Artist', hover_data=['Artist'])
-        fig.update_traces(textposition='inside', textinfo='percent+label')
-        fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
-        return fig
-
-def show_pie_subplots(data):
-    time_period_data = get_time_periods_dfs(data)
-    specs = [[{'type':'domain'}, {'type':'domain'}], 
-                [{'type':'domain'}, {'type':'domain'}], 
-                [{'type':'domain'}, {'type':'domain'}]]
-    fig = make_subplots(rows=3, cols=2, specs=specs)
-    count, row, col = 0, 0, 0
-    for d in time_period_data.values():
-        props = d['props']
-        props['Artist'] = props.index
-        _r = row + 1
-        _c = col%2 + 1
-        fig.add_trace(go.Pie(labels=props['Artist'], values=props['proportion']), _r, _c)
-        if count == 5:
-            break
-        count += 1
-        col += 1
-        if col % 2 == 0:
-            row += 1
-    fig.update_traces(textposition='inside')
-    fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
-    fig.update_traces(hoverinfo='label+percent', textinfo='label', textfont_size=12,
-                            marker=dict(line=dict(color='#000000', width=2)), hole = 0.01)
-    fig.update_layout(title_text="Songs Listened to in Week 1: Divided by Artist")
-    return go.Figure(fig)
